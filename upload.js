@@ -1,4 +1,4 @@
-const token = "YOUR_TOKEN"; 
+const token = "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"; 
 const repoOwner = "JasperSpittaels";
 const repoName = "Hamy-School";
 
