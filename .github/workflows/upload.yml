@@ -1,0 +1,31 @@
+name: Process Uploads
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  upload-file:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Extract base64 from issue
+        id: extract
+        run: |
+          echo "FILE_NAME=$(echo '${{ github.event.issue.title }}' | sed 's/Upload: //')" >> $GITHUB_ENV
+          echo "BASE64=$(echo '${{ github.event.issue.body }}' | sed -n '/```/,/```/p' | sed '1d;$d')" >> $GITHUB_ENV
+
+      - name: Decode file
+        run: |
+          echo "$BASE64" | base64 -d > "uploads/$FILE_NAME"
+
+      - name: Commit file
+        run: |
+          git config user.name "GitHub Action"
+          git config user.email "action@github.com"
+          git add uploads/
+          git commit -m "Upload $FILE_NAME via issue"
+          git push
