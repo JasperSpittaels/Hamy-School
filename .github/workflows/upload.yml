@@ -1,31 +1,47 @@
-name: Process Uploads
+name: Deploy Vite to GitHub Pages
 
 on:
-  issues:
-    types: [opened]
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
-  upload-file:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Extract base64 from issue
-        id: extract
-        run: |
-          echo "FILE_NAME=$(echo '${{ github.event.issue.title }}' | sed 's/Upload: //')" >> $GITHUB_ENV
-          echo "BASE64=$(echo '${{ github.event.issue.body }}' | sed -n '/```/,/```/p' | sed '1d;$d')" >> $GITHUB_ENV
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
-      - name: Decode file
-        run: |
-          echo "$BASE64" | base64 -d > "uploads/$FILE_NAME"
+      - name: Install dependencies
+        run: npm install
 
-      - name: Commit file
-        run: |
-          git config user.name "GitHub Action"
-          git config user.email "action@github.com"
-          git add uploads/
-          git commit -m "Upload $FILE_NAME via issue"
-          git push
+      - name: Build project
+        run: npm run build
+
+      - name: Upload dist folder
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
