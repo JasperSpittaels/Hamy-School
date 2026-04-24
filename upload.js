@@ -1,6 +1,6 @@
 const token = "YOUR_TOKEN"; 
-const repoOwner = "YOUR_USERNAME";
-const repoName = "YOUR_REPO";
+const repoOwner = "JasperSpittaels";
+const repoName = "Hamy-School";
 
 document.getElementById("uploadBtn").onclick = async () => {
   const file = document.getElementById("fileInput").files[0];
