@@ -1,4 +1,3 @@
-const token = "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"; 
 const repoOwner = "JasperSpittaels";
 const repoName = "Hamy-School";
 
@@ -25,7 +24,6 @@ ${base64}
     const res = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/issues`, {
       method: "POST",
       headers: {
-        "Authorization": `token ${token}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
