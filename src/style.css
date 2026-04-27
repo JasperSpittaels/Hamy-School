@@ -86,3 +86,45 @@ main {
 }
 
 .download-btn:hover { background: #2a8a42; }
+
+#breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+
+.bc-item.active { font-weight: bold; color: #333; }
+.bc-item.link { color: #1a73e8; cursor: pointer; }
+.bc-item.link:hover { text-decoration: underline; }
+.bc-sep { color: #999; }
+
+.rij {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.rij input { flex: 1; }
+
+.map-kaart { background: #fffbe6; border-left: 4px solid #f9ab00; }
+.map-icoon { font-size: 1.4rem; }
+
+.kaart-acties {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.verwijder-btn {
+  background: #e53935;
+  color: white;
+  border: none;
+  padding: 0.5rem 0.8rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.verwijder-btn:hover { background: #b71c1c; }

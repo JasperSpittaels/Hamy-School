@@ -14,20 +14,30 @@
   </header>
 
   <main>
-    <!-- Upload sectie -->
+    <!-- Breadcrumb navigatie -->
+    <div id="breadcrumb"></div>
+
+    <!-- Map aanmaken -->
     <section class="upload-box">
-      <h2>Bestand uploaden</h2>
-      <input type="text" id="vak-input" placeholder="Vak (bijv. Wiskunde)" />
-      <input type="text" id="beschrijving-input" placeholder="Beschrijving" />
-      <input type="file" id="bestand-input" />
-      <button id="upload-btn">⬆️ Uploaden</button>
-      <p id="upload-status"></p>
+	  <h2>📁 Nieuwe map</h2>
+	  <div class="rij">
+	    <input type="text" id="map-naam-input" placeholder="Mapnaam (bijv. Wiskunde)" />
+	    <button id="map-aanmaken-btn">➕ Aanmaken</button>
+	  </div>
+    </section>
+
+    <!-- Bestand uploaden -->
+    <section class="upload-box">
+	  <h2>⬆️ Bestand uploaden</h2>
+	  <input type="file" id="bestand-input" />
+	  <button id="upload-btn">Uploaden</button>
+	  <p id="upload-status"></p>
     </section>
 
     <!-- Zoekbalk -->
     <input type="text" id="zoek" placeholder="🔍 Zoek bestanden..." class="zoekbalk" />
 
-    <!-- Bestandenlijst -->
+    <!-- Lijst -->
     <section id="bestanden-lijst"></section>
   </main>
 
