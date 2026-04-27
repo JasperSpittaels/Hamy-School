@@ -149,22 +149,52 @@ async function verwijderBestand(volledigPad) {
   }
 }
 
-// ── Map verwijderen ────────────────────────────────────────────
+// ── Recursief alle bestanden in een map ophalen ────────────────
+async function lijstAllesBestanden(mapPad) {
+  const { data, error } = await supabase.storage.from(BUCKET).list(mapPad)
+  if (error || !data) return []
+
+  let allePaden = []
+
+  for (const item of data) {
+    const volledigPad = `${mapPad}/${item.name}`
+    const isMap = item.id === null
+
+    if (isMap) {
+      // Recursief de submap ingaan
+      const subPaden = await lijstAllesBestanden(volledigPad)
+      allePaden = [...allePaden, ...subPaden]
+    } else {
+      allePaden.push(volledigPad)
+    }
+  }
+
+  return allePaden
+}
+
+// ── Map verwijderen ────────────────────────────────
 async function verwijderMap(mapNaam) {
   const pad = huidigePad()
   const volledigMapPad = pad ? `${pad}/${mapNaam}` : mapNaam
   if (!confirm(`Map "${mapNaam}" en alle inhoud verwijderen?`)) return
 
-  const { data, error } = await supabase.storage.from(BUCKET).list(volledigMapPad)
-  if (error) { status.textContent = '❌ Fout: ' + error.message; return }
+  status.textContent = '⏳ Bezig met verwijderen...'
 
-  if (data && data.length > 0) {
-    const paden = data.map(f => `${volledigMapPad}/${f.name}`)
-    const { error: removeError } = await supabase.storage.from(BUCKET).remove(paden)
-    if (removeError) { status.textContent = '❌ Verwijderen mislukt: ' + removeError.message; return }
+  // Haal ALLE bestanden recursief op (ook in submappen)
+  const allePaden = await lijstAllesBestanden(volledigMapPad)
+
+  if (allePaden.length > 0) {
+    const { error } = await supabase.storage.from(BUCKET).remove(allePaden)
+    if (error) {
+      status.textContent = '❌ Verwijderen mislukt: ' + error.message
+      return
+    }
   }
 
+  // Verwijder ook de placeholder
   await supabase.storage.from(BUCKET).remove([`${volledigMapPad}/.emptyFolderPlaceholder`])
+
+  status.textContent = '✅ Map verwijderd!'
   laadBestanden()
 }
 
