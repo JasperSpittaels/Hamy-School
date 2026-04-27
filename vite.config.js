@@ -11,7 +11,7 @@ function getHtmlEntries(dir, entries = {}) {
 
     if (stat.isDirectory()) {
       getHtmlEntries(fullPath, entries)
-    } else if (file.endsWith('.html')) {
+    } else if (file.endsWith('.html', '.css', 'js')) {
       const name = fullPath
         .replace(process.cwd(), '')
         .replace(/\\/g, '/')
@@ -26,7 +26,7 @@ function getHtmlEntries(dir, entries = {}) {
 }
 
 export default defineConfig({
-  base: "/Hoedoeikt/",
+  base: "/Hamy-School/",
   
   build: {
     rollupOptions: {
