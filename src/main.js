@@ -1,7 +1,6 @@
 import { supabase, BUCKET } from './supabase.js'
 
 // ── State ─────────────────────────────────────────────────────
-// Pad als array: [] = root, ['Engels'] = in Engels, ['Engels','toets'] = dieper
 let padStapels = []
 
 function huidigePad() {
