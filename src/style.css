@@ -7,7 +7,7 @@ body {
 }
 
 header {
-  background: #1a73e8;
+  background: #d60000;
   color: white;
   padding: 2rem;
   text-align: center;
@@ -39,7 +39,7 @@ main {
 }
 
 .upload-box button {
-  background: #1a73e8;
+  background: #d60000;
   color: white;
   border: none;
   padding: 0.7rem;
@@ -49,7 +49,7 @@ main {
   font-weight: bold;
 }
 
-.upload-box button:hover { background: #1557b0; }
+.upload-box button:hover { background: #a11010; }
 .upload-box button:disabled { background: #aaa; }
 
 .kaart {
@@ -67,7 +67,7 @@ main {
 .kaart small { color: #666; font-size: 0.82rem; }
 
 .download-btn {
-  background: #34a853;
+  background: #d60000;
   color: white;
   padding: 0.5rem 1rem;
   border-radius: 8px;
@@ -76,7 +76,7 @@ main {
   white-space: nowrap;
 }
 
-.download-btn:hover { background: #2a8a42; }
+.download-btn:hover { background: #a11010; }
 
 #breadcrumb {
   display: flex;
