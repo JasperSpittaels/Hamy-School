@@ -143,7 +143,7 @@ async function verwijderMap(mapNaam) {
 mappenBtn.addEventListener('click', async () => {
   const naam = mapNaamInput.value.trim()
   if (!naam) { status.textContent = 'Geef een mapnaam op.'; return }
-  if (/[^a-zA-Z0-9_\- ]/.test(naam)) { status.textContent = 'Gebruik alleen letters, cijfers, - of _'); return }
+  if (/[^a-zA-Z0-9_\- ]/.test(naam)) { status.textContent = 'Gebruik alleen letters, cijfers, - of _'; return }
 
   const pad = huidigePad ? `${huidigePad}/${naam}/.emptyFolderPlaceholder` : `${naam}/.emptyFolderPlaceholder`
   const leegBestand = new Blob([''], { type: 'text/plain' })
