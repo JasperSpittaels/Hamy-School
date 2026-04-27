@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import { resolve } from 'path'
+import fs from 'fs'
 
 function getHtmlEntries(dir, entries = {}) {
   const files = fs.readdirSync(dir)
@@ -25,7 +26,7 @@ function getHtmlEntries(dir, entries = {}) {
 }
 
 export default defineConfig({
-  base: "/Hamy-School/",
+  base: "/Hoedoeikt/",
   
   build: {
     rollupOptions: {

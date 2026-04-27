@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hamy School</title>
+  <script type="module" crossorigin src="/Hoedoeikt/assets/main-Bz-V-Py7.js"></script>
+  <link rel="stylesheet" crossorigin href="/Hoedoeikt/assets/main-Tmkf-QB2.css">
+</head>
+<body>
+
+  <header>
+    <h1>📚 Schoolbestanden</h1>
+    <p>Upload en download lesmateriaal</p>
+  </header>
+
+  <main>
+    <!-- Upload sectie -->
+    <section class="upload-box">
+      <h2>Bestand uploaden</h2>
+      <input type="text" id="vak-input" placeholder="Vak (bijv. Wiskunde)" />
+      <input type="text" id="beschrijving-input" placeholder="Beschrijving" />
+      <input type="file" id="bestand-input" />
+      <button id="upload-btn">⬆️ Uploaden</button>
+      <p id="upload-status"></p>
+    </section>
+
+    <!-- Zoekbalk -->
+    <input type="text" id="zoek" placeholder="🔍 Zoek bestanden..." class="zoekbalk" />
+
+    <!-- Bestandenlijst -->
+    <section id="bestanden-lijst"></section>
+  </main>
+
+</body>
+</html>
