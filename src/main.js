@@ -1,9 +1,14 @@
 import { supabase, BUCKET } from './supabase.js'
 
-// ── State ────────────────────────────────────────────────────
-let huidigePad = ''
+// ── State ─────────────────────────────────────────────────────
+// Pad als array: [] = root, ['Engels'] = in Engels, ['Engels','toets'] = dieper
+let padStapels = []
 
-// ── DOM refs ─────────────────────────────────────────────────
+function huidigePad() {
+  return padStapels.join('/')
+}
+
+// ── DOM refs ──────────────────────────────────────────────────
 const lijst        = document.getElementById('bestanden-lijst')
 const uploadBtn    = document.getElementById('upload-btn')
 const status       = document.getElementById('upload-status')
@@ -11,31 +16,57 @@ const mappenBtn    = document.getElementById('map-aanmaken-btn')
 const mapNaamInput = document.getElementById('map-naam-input')
 const breadcrumb   = document.getElementById('breadcrumb')
 
-// ── Breadcrumb bijwerken ──────────────────────────────────────
+// ── Breadcrumb bijwerken ───────────────────────────────────────
 function updateBreadcrumb() {
-  if (huidigePad === '') {
-    breadcrumb.innerHTML = '<span class="bc-item active">🏠 Root</span>'
-  } else {
-    breadcrumb.innerHTML = `
-      <span class="bc-item link" id="bc-root">🏠 Root</span>
-      <span class="bc-sep">›</span>
-      <span class="bc-item active">📁 ${huidigePad}</span>
-    `
-    document.getElementById('bc-root').addEventListener('click', () => {
-      huidigePad = ''
+  // Bouw elk niveau op als klikbare link, behalve het laatste
+  const delen = []
+
+  // Root
+  const rootSpan = document.createElement('span')
+  rootSpan.className = padStapels.length === 0 ? 'bc-item active' : 'bc-item link'
+  rootSpan.textContent = '🏠 Root'
+  if (padStapels.length > 0) {
+    rootSpan.addEventListener('click', () => {
+      padStapels = []
       laadBestanden()
     })
   }
+  delen.push(rootSpan)
+
+  // Elke map in het pad
+  padStapels.forEach((map, index) => {
+    const sep = document.createElement('span')
+    sep.className = 'bc-sep'
+    sep.textContent = '›'
+    delen.push(sep)
+
+    const mapSpan = document.createElement('span')
+    const isLaatste = index === padStapels.length - 1
+    mapSpan.className = isLaatste ? 'bc-item active' : 'bc-item link'
+    mapSpan.textContent = `📁 ${map}`
+
+    if (!isLaatste) {
+      // Klik → ga terug naar dit niveau
+      mapSpan.addEventListener('click', () => {
+        padStapels = padStapels.slice(0, index + 1)
+        laadBestanden()
+      })
+    }
+    delen.push(mapSpan)
+  })
+
+  breadcrumb.innerHTML = ''
+  delen.forEach(el => breadcrumb.appendChild(el))
 }
 
-// ── Bestanden & mappen laden ──────────────────────────────────
+// ── Bestanden & mappen laden ───────────────────────────────────
 async function laadBestanden() {
   updateBreadcrumb()
   lijst.innerHTML = '<p>Laden...</p>'
 
   const { data, error } = await supabase.storage
     .from(BUCKET)
-    .list(huidigePad, { sortBy: { column: 'name', order: 'asc' } })
+    .list(huidigePad(), { sortBy: { column: 'name', order: 'asc' } })
 
   if (error) {
     lijst.innerHTML = '<p>❌ Fout bij laden.</p>'
@@ -60,14 +91,14 @@ async function laadBestanden() {
       const kaart = document.createElement('div')
       kaart.className = 'kaart map-kaart'
       kaart.innerHTML = `
-        <div class="kaart-info" style="cursor:pointer" data-map="${item.name}">
+        <div class="kaart-info" style="cursor:pointer">
           <span class="map-icoon">📁</span>
           <h3>${item.name}</h3>
         </div>
-        <button class="verwijder-btn" data-map="${item.name}">🗑️ Verwijder map</button>
+        <button class="verwijder-btn">🗑️ Verwijder map</button>
       `
       kaart.querySelector('.kaart-info').addEventListener('click', () => {
-        huidigePad = huidigePad ? `${huidigePad}/${item.name}` : item.name
+        padStapels = [...padStapels, item.name]
         laadBestanden()
       })
       kaart.querySelector('.verwijder-btn').addEventListener('click', () =>
@@ -76,7 +107,8 @@ async function laadBestanden() {
       lijst.appendChild(kaart)
 
     } else {
-      const volledigPad = huidigePad ? `${huidigePad}/${item.name}` : item.name
+      const pad = huidigePad()
+      const volledigPad = pad ? `${pad}/${item.name}` : item.name
       const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(volledigPad)
       const grootte = item.metadata?.size
         ? (item.metadata.size / 1024).toFixed(1) + ' KB'
@@ -94,7 +126,7 @@ async function laadBestanden() {
         </div>
         <div class="kaart-acties">
           <a class="download-btn" href="${urlData.publicUrl}" download target="_blank">⬇️ Download</a>
-          <button class="verwijder-btn" data-pad="${volledigPad}">🗑️</button>
+          <button class="verwijder-btn">🗑️</button>
         </div>
       `
       kaart.querySelector('.verwijder-btn').addEventListener('click', () =>
@@ -105,11 +137,11 @@ async function laadBestanden() {
   }
 }
 
-// ── Bestand verwijderen ───────────────────────────────────────
-async function verwijderBestand(pad) {
-  if (!confirm(`Bestand verwijderen: ${pad}?`)) return
+// ── Bestand verwijderen ────────────────────────────────────────
+async function verwijderBestand(volledigPad) {
+  if (!confirm(`Bestand verwijderen: ${volledigPad}?`)) return
 
-  const { error } = await supabase.storage.from(BUCKET).remove([pad])
+  const { error } = await supabase.storage.from(BUCKET).remove([volledigPad])
   if (error) {
     status.textContent = '❌ Verwijderen mislukt: ' + error.message
   } else {
@@ -117,15 +149,13 @@ async function verwijderBestand(pad) {
   }
 }
 
-// ── Map verwijderen ───────────────────────────────────────────
+// ── Map verwijderen ────────────────────────────────────────────
 async function verwijderMap(mapNaam) {
-  const volledigMapPad = huidigePad ? `${huidigePad}/${mapNaam}` : mapNaam
+  const pad = huidigePad()
+  const volledigMapPad = pad ? `${pad}/${mapNaam}` : mapNaam
   if (!confirm(`Map "${mapNaam}" en alle inhoud verwijderen?`)) return
 
-  const { data, error } = await supabase.storage
-    .from(BUCKET)
-    .list(volledigMapPad)
-
+  const { data, error } = await supabase.storage.from(BUCKET).list(volledigMapPad)
   if (error) { status.textContent = '❌ Fout: ' + error.message; return }
 
   if (data && data.length > 0) {
@@ -135,20 +165,22 @@ async function verwijderMap(mapNaam) {
   }
 
   await supabase.storage.from(BUCKET).remove([`${volledigMapPad}/.emptyFolderPlaceholder`])
-
   laadBestanden()
 }
 
-// ── Map aanmaken ──────────────────────────────────────────────
+// ── Map aanmaken ───────────────────────────────────────────────
 mappenBtn.addEventListener('click', async () => {
   const naam = mapNaamInput.value.trim()
   if (!naam) { status.textContent = 'Geef een mapnaam op.'; return }
   if (/[^a-zA-Z0-9_\- ]/.test(naam)) { status.textContent = 'Gebruik alleen letters, cijfers, - of _'; return }
 
-  const pad = huidigePad ? `${huidigePad}/${naam}/.emptyFolderPlaceholder` : `${naam}/.emptyFolderPlaceholder`
+  const pad = huidigePad()
+  const placeholder = pad
+    ? `${pad}/${naam}/.emptyFolderPlaceholder`
+    : `${naam}/.emptyFolderPlaceholder`
   const leegBestand = new Blob([''], { type: 'text/plain' })
 
-  const { error } = await supabase.storage.from(BUCKET).upload(pad, leegBestand)
+  const { error } = await supabase.storage.from(BUCKET).upload(placeholder, leegBestand)
   if (error && !error.message.includes('already exists')) {
     status.textContent = '❌ Map aanmaken mislukt: ' + error.message
   } else {
@@ -157,7 +189,7 @@ mappenBtn.addEventListener('click', async () => {
   }
 })
 
-// ── Bestand uploaden ──────────────────────────────────────────
+// ── Bestand uploaden ───────────────────────────────────────────
 uploadBtn.addEventListener('click', async () => {
   const bestandInput = document.getElementById('bestand-input')
   const bestand = bestandInput.files[0]
@@ -166,8 +198,9 @@ uploadBtn.addEventListener('click', async () => {
   uploadBtn.disabled = true
   status.textContent = '⏳ Uploaden...'
 
-  const pad = huidigePad ? `${huidigePad}/${bestand.name}` : bestand.name
-  const { error } = await supabase.storage.from(BUCKET).upload(pad, bestand, { upsert: true })
+  const pad = huidigePad()
+  const volledigPad = pad ? `${pad}/${bestand.name}` : bestand.name
+  const { error } = await supabase.storage.from(BUCKET).upload(volledigPad, bestand, { upsert: true })
 
   uploadBtn.disabled = false
   if (error) {
@@ -179,5 +212,5 @@ uploadBtn.addEventListener('click', async () => {
   }
 })
 
-// ── Start ─────────────────────────────────────────────────────
+// ── Start ──────────────────────────────────────────────────────
 laadBestanden()
