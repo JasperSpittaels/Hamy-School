@@ -111,7 +111,7 @@ async function verwijderBestand(pad) {
 
   const { error } = await supabase.storage.from(BUCKET).remove([pad])
   if (error) {
-    alert('❌ Verwijderen mislukt: ' + error.message)
+    status.textContent = '❌ Verwijderen mislukt: ' + error.message
   } else {
     laadBestanden()
   }
@@ -126,12 +126,12 @@ async function verwijderMap(mapNaam) {
     .from(BUCKET)
     .list(volledigMapPad)
 
-  if (error) { alert('❌ Fout: ' + error.message); return }
+  if (error) { status.textContent = '❌ Fout: ' + error.message; return }
 
   if (data && data.length > 0) {
     const paden = data.map(f => `${volledigMapPad}/${f.name}`)
     const { error: removeError } = await supabase.storage.from(BUCKET).remove(paden)
-    if (removeError) { alert('❌ Verwijderen mislukt: ' + removeError.message); return }
+    if (removeError) { status.textContent = '❌ Verwijderen mislukt: ' + removeError.message; return }
   }
 
   await supabase.storage.from(BUCKET).remove([`${volledigMapPad}/.emptyFolderPlaceholder`])
@@ -142,15 +142,15 @@ async function verwijderMap(mapNaam) {
 // ── Map aanmaken ──────────────────────────────────────────────
 mappenBtn.addEventListener('click', async () => {
   const naam = mapNaamInput.value.trim()
-  if (!naam) { alert('Geef een mapnaam op.'); return }
-  if (/[^a-zA-Z0-9_\- ]/.test(naam)) { alert('Gebruik alleen letters, cijfers, - of _'); return }
+  if (!naam) { status.textContent = 'Geef een mapnaam op.'; return }
+  if (/[^a-zA-Z0-9_\- ]/.test(naam)) { status.textContent = 'Gebruik alleen letters, cijfers, - of _'); return }
 
   const pad = huidigePad ? `${huidigePad}/${naam}/.emptyFolderPlaceholder` : `${naam}/.emptyFolderPlaceholder`
   const leegBestand = new Blob([''], { type: 'text/plain' })
 
   const { error } = await supabase.storage.from(BUCKET).upload(pad, leegBestand)
   if (error && !error.message.includes('already exists')) {
-    alert('❌ Map aanmaken mislukt: ' + error.message)
+    status.textContent = '❌ Map aanmaken mislukt: ' + error.message
   } else {
     mapNaamInput.value = ''
     laadBestanden()
