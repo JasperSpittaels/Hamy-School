@@ -52,15 +52,6 @@ main {
 .upload-box button:hover { background: #1557b0; }
 .upload-box button:disabled { background: #aaa; }
 
-.zoekbalk {
-  width: 100%;
-  padding: 0.8rem 1rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 1rem;
-  margin-bottom: 1rem;
-}
-
 .kaart {
   background: white;
   border-radius: 12px;

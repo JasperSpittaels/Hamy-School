@@ -1,11 +1,10 @@
 import { supabase, BUCKET } from './supabase.js'
 
 // ── State ────────────────────────────────────────────────────
-let huidigePad = '' // '' = root, 'wiskunde' = in map "wiskunde"
+let huidigePad = ''
 
 // ── DOM refs ─────────────────────────────────────────────────
 const lijst        = document.getElementById('bestanden-lijst')
-const zoek         = document.getElementById('zoek')
 const uploadBtn    = document.getElementById('upload-btn')
 const status       = document.getElementById('upload-status')
 const mappenBtn    = document.getElementById('map-aanmaken-btn')
@@ -30,7 +29,7 @@ function updateBreadcrumb() {
 }
 
 // ── Bestanden & mappen laden ──────────────────────────────────
-async function laadBestanden(filter = '') {
+async function laadBestanden() {
   updateBreadcrumb()
   lijst.innerHTML = '<p>Laden...</p>'
 
@@ -44,7 +43,6 @@ async function laadBestanden(filter = '') {
   }
 
   const gefilterd = data.filter(item =>
-    item.name.toLowerCase().includes(filter.toLowerCase()) &&
     item.name !== '.emptyFolderPlaceholder'
   )
 
@@ -56,10 +54,9 @@ async function laadBestanden(filter = '') {
   lijst.innerHTML = ''
 
   for (const item of gefilterd) {
-    const isMap = item.id === null // mappen hebben geen id in Supabase
+    const isMap = item.id === null
 
     if (isMap) {
-      // ── Map kaart ──
       const kaart = document.createElement('div')
       kaart.className = 'kaart map-kaart'
       kaart.innerHTML = `
@@ -79,7 +76,6 @@ async function laadBestanden(filter = '') {
       lijst.appendChild(kaart)
 
     } else {
-      // ── Bestand kaart ──
       const volledigPad = huidigePad ? `${huidigePad}/${item.name}` : item.name
       const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(volledigPad)
       const grootte = item.metadata?.size
@@ -121,12 +117,11 @@ async function verwijderBestand(pad) {
   }
 }
 
-// ── Map verwijderen (alle bestanden erin verwijderen) ─────────
+// ── Map verwijderen ───────────────────────────────────────────
 async function verwijderMap(mapNaam) {
   const volledigMapPad = huidigePad ? `${huidigePad}/${mapNaam}` : mapNaam
   if (!confirm(`Map "${mapNaam}" en alle inhoud verwijderen?`)) return
 
-  // Lijst alle bestanden in de map op
   const { data, error } = await supabase.storage
     .from(BUCKET)
     .list(volledigMapPad)
@@ -139,7 +134,6 @@ async function verwijderMap(mapNaam) {
     if (removeError) { alert('❌ Verwijderen mislukt: ' + removeError.message); return }
   }
 
-  // Verwijder ook de placeholder als die bestaat
   await supabase.storage.from(BUCKET).remove([`${volledigMapPad}/.emptyFolderPlaceholder`])
 
   laadBestanden()
@@ -151,7 +145,6 @@ mappenBtn.addEventListener('click', async () => {
   if (!naam) { alert('Geef een mapnaam op.'); return }
   if (/[^a-zA-Z0-9_\- ]/.test(naam)) { alert('Gebruik alleen letters, cijfers, - of _'); return }
 
-  // Supabase heeft een placeholder bestand nodig om een map aan te maken
   const pad = huidigePad ? `${huidigePad}/${naam}/.emptyFolderPlaceholder` : `${naam}/.emptyFolderPlaceholder`
   const leegBestand = new Blob([''], { type: 'text/plain' })
 
@@ -185,9 +178,6 @@ uploadBtn.addEventListener('click', async () => {
     laadBestanden()
   }
 })
-
-// ── Zoeken ────────────────────────────────────────────────────
-zoek.addEventListener('input', e => laadBestanden(e.target.value))
 
 // ── Start ─────────────────────────────────────────────────────
 laadBestanden()

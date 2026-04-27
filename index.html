@@ -13,10 +13,18 @@
     <p>Upload en download lesmateriaal</p>
   </header>
 
-  <main>
-    <!-- Breadcrumb navigatie -->
+  <main>	
+	<!-- Bestand uploaden -->
+    <section class="upload-box">
+	  <h2>⬆️ Bestand uploaden</h2>
+	  <input type="file" id="bestand-input" />
+	  <button id="upload-btn">Uploaden</button>
+	  <p id="upload-status"></p>
+    </section>
+	
+	<!-- Breadcrumb navigatie -->
     <div id="breadcrumb"></div>
-
+	
     <!-- Map aanmaken -->
     <section class="upload-box">
 	  <h2>📁 Nieuwe map</h2>
@@ -25,17 +33,6 @@
 	    <button id="map-aanmaken-btn">➕ Aanmaken</button>
 	  </div>
     </section>
-
-    <!-- Bestand uploaden -->
-    <section class="upload-box">
-	  <h2>⬆️ Bestand uploaden</h2>
-	  <input type="file" id="bestand-input" />
-	  <button id="upload-btn">Uploaden</button>
-	  <p id="upload-status"></p>
-    </section>
-
-    <!-- Zoekbalk -->
-    <input type="text" id="zoek" placeholder="🔍 Zoek bestanden..." class="zoekbalk" />
 
     <!-- Lijst -->
     <section id="bestanden-lijst"></section>
